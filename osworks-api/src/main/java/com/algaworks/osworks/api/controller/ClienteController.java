@@ -2,30 +2,49 @@ package com.algaworks.osworks.api.controller;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.algaworks.osworks.domain.model.Cliente;
+import com.algaworks.osworks.domain.repository.ClienteRepository;
 
 @RestController
+@RequestMapping("/clientes")
 public class ClienteController {
 	
-	@GetMapping("/clientes")
+	@Autowired
+	private ClienteRepository clienteRepository;
+	
+	@GetMapping
 	public List<Cliente> listar() {
 		
-		var cliente1 = new Cliente();
-		cliente1.setId(1l);
-		cliente1.setNome("Test1");
-		cliente1.setEmail("@");
-		cliente1.setTelefone("9999999999");
+		return clienteRepository.findAll();
+
+	}
+	
+	@GetMapping("/{clienteId}")
+	public ResponseEntity<Cliente> buscar(@PathVariable Long clienteId) {
+		Optional<Cliente> cliente = clienteRepository.findById(clienteId);
 		
-		var cliente2 = new Cliente();
-		cliente2.setId(2l);
-		cliente2.setNome("Testqeqwdassa2");
-		cliente2.setEmail("@");
-		cliente2.setTelefone("9999999999");
-		
-		return Arrays.asList(cliente1,cliente2);
+		if(cliente.isPresent()) {
+			return ResponseEntity.ok(cliente.get());
+		}
+		return ResponseEntity.notFound().build();
+	}
+	
+	@PostMapping
+	public Cliente adcicionar(@RequestBody Cliente cliente) {
+		return clienteRepository.save(cliente);
 	}
 }
